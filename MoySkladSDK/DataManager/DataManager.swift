@@ -357,6 +357,35 @@ public struct DataManager {
     }
     
     /**
+     Load retail shifts.
+     Also see [ API reference](https://online.moysklad.ru/api/remap/1.1/doc/index.html#документ-розничная-смена)
+     - parameter parameters: container for parameters like:
+     authentication information,
+     desired data offset,
+     filter for request,
+     Additional objects to include into request,
+     Order by instruction
+     */
+    public static func retailShifts(parameters: UrlRequestParameters) -> Observable<[MSEntity<MSRetailShift>]> {
+            let urlParameters: [UrlParameter] = mergeUrlParameters(parameters.offset, parameters.filter, parameters.search, parameters.orderBy, CompositeExpander(parameters.expanders))
+            return HttpClient.get(.retailshift, auth: parameters.auth, urlParameters: urlParameters)
+                .flatMapLatest { result -> Observable<[MSEntity<MSRetailShift>]> in
+                    guard let result = result?.toDictionary() else {
+                        return Observable.error(MSError.genericError(errorText: LocalizedStrings.incorrectRetailShiftResponse.value))
+                    }
+                    
+                    let deserialized = result.msArray("rows").map { MSRetailShift.from(dict: $0) }
+                    let withoutNills = deserialized.removeNils()
+                    
+                    guard withoutNills.count == deserialized.count else {
+                        return Observable.error(MSError.genericError(errorText: LocalizedStrings.incorrectRetailShiftResponse.value))
+                    }
+                    
+                    return Observable.just(withoutNills)
+            }
+    }
+    
+    /**
      Load counterparties.
      Also see [ API reference](https://online.moysklad.ru/api/remap/1.1/doc/index.html#контрагент)
      - parameter parameters: container for parameters like:
