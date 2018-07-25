@@ -52,7 +52,7 @@ public struct UrlRequestParameters {
     public let search: Search?
     public let orderBy: Order?
     
-    public init(auth: Auth, offset: MSOffset? = nil, expanders: [Expander], filter: Filter? = nil, search: Search? = nil, orderBy: Order? = nil) {
+    public init(auth: Auth, offset: MSOffset? = nil, expanders: [Expander] = [], filter: Filter? = nil, search: Search? = nil, orderBy: Order? = nil) {
         self.auth = auth
         self.offset = offset
         self.expanders = expanders
